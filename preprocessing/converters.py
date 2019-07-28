@@ -44,10 +44,9 @@ class HDF5Store(object):
             h5f.flush()
 
 def saveAsHdf5(inputPath,OutputFile,preprocess=None,dataName='images',inpFormat='.jpg',reader=io.imread,shape=(224,224,224)):
-	"""
-		Saves all files in inputPath that ends with inpFormat to OutputFile
-		
-	"""
+    """
+        Saves all files in inputPath that ends with inpFormat to OutputFile
+    """
     hdf5_store = HDF5Store(OutputFile,dataName, shape=shape)
     files=glob.glob(inputPath+'/*'+inpFormat)
     if preprocess==None:
