@@ -1,7 +1,10 @@
+import glob
+
 import h5py
 import numpy as np
-import glob
 import skimage.io as io
+
+
 class HDF5Store(object):
     """
     Simple class to append value to a hdf5 file on disc (usefull for building keras datasets)
@@ -38,7 +41,7 @@ class HDF5Store(object):
     def append(self, values):
         with h5py.File(self.datapath, mode='a') as h5f:
             dset = h5f[self.dataset]
-            dset.resize((self.i + 1, ) + shape)
+            dset.resize((self.i + 1,) + self.shape)
             dset[self.i] = [values]
             self.i += 1
             h5f.flush()
@@ -58,4 +61,3 @@ def saveAsHdf5(inputPath,OutputFile,preprocess=None,dataName='images',inpFormat=
             file=reader(i)
             file=preprocess(file)
             hdf5_store.append(file)
-
