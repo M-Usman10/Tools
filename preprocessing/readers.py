@@ -32,3 +32,23 @@ def read_images(inputPath, preprocess=None, format=''):
             images.append(preprocess(cv2.imread(path)))
             my_print(idx)
     return np.array(images)
+
+
+def read_given_images(root, names, preprocess=None):
+    """
+    Read images specified in names in given order
+    :param root: Root directory of images
+    :param names: list of image names placed in root
+    :param preprocess: Functor for preprocessing
+    :return: Numpy array of images
+    """
+    images = []
+    if preprocess is None:
+        for idx, path in enumerate(names):
+            images.append(cv2.imread(os.path.join(root, path)))
+            my_print(idx)
+    else:
+        for idx, path in enumerate(names):
+            images.append(preprocess(cv2.imread(os.path.join(root, path))))
+            my_print(idx)
+    return np.array(images)
