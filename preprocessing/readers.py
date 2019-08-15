@@ -6,8 +6,7 @@ import h5py
 import numpy as np
 
 from .
-/../ others.print
-import my_print
+/../ others.print import my_print
 
 
 def read_hdf5(inputPath, dataset="images"):
