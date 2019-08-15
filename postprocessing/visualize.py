@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 
-def display_landmarks(images, keypoints_labels):
+def visualize_landmarks(images, keypoints_labels):
     WIDTH = 14
     HEIGHT = 10
     rows = len(images)
