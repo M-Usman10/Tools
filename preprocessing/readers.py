@@ -26,7 +26,7 @@ def read_images(inputPath, preprocess=None, format='', sorted=False):
     if sorted:
         l = []
         for path in image_paths:
-            l.append(os.path.basename(path).split('.')[0])
+            l.append(int(os.path.basename(path).split('.')[0]))
         idx = np.argsort(l)
         image_paths = image_paths[idx]
     if preprocess is None:
