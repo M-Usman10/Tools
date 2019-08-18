@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from PIL import Image
-
+from mpl_toolkits.mplot3d import Axes3D
 
 def visualize_landmarks(images, keypoints_labels):
     WIDTH = 14
