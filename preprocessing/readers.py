@@ -1,5 +1,6 @@
 import glob
 import os
+import xml.etree.ElementTree as ET
 
 import cv2
 import h5py
@@ -58,3 +59,23 @@ def read_given_images(root, names, preprocess=None):
             images.append(preprocess(cv2.imread(os.path.join(root, path))))
             my_print(idx)
     return np.array(images)
+
+
+def load_bbox_annotations(Path, names=None):
+    if names is None:
+        xmls = glob.glob(Path + "/*.xml")
+    else:
+        xmls = names
+    AllBoxes = []
+    for xml in xmls:
+        root = ET.parse(xml).getroot()
+        objects = root.findall('object')
+        boxes = []
+        for obj in objects:
+            box = []
+            for child in obj.find('bndbox'):
+                box.append(int(child.text))
+            new_box = [box[1], box[0], box[3], box[2]]
+            boxes.append(new_box)
+        AllBoxes.append(boxes)
+    return AllBoxes
