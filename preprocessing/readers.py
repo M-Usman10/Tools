@@ -14,7 +14,7 @@ def read_hdf5(inputPath, dataset="images"):
     return files[dataset][:]
 
 
-def read_images(inputPath, preprocess=None, format='', sorted=False):
+def read_images(inputPath, preprocess=None, format='', total=None, sorted=False):
     """
 
     :param inputPath: Path of directory where images are placed
@@ -22,8 +22,11 @@ def read_images(inputPath, preprocess=None, format='', sorted=False):
     :param format: '.jpg' etc.
     :return: Numpy array of images
     """
+
     images = []
     image_paths = np.array(glob.glob(os.path.join(inputPath, '*' + format)))
+    if total is None:
+        total = len(image_paths)
     if sorted:
         l = []
         for path in image_paths:
@@ -31,11 +34,11 @@ def read_images(inputPath, preprocess=None, format='', sorted=False):
         idx = np.argsort(l)
         image_paths = image_paths[idx]
     if preprocess is None:
-        for idx, path in enumerate(image_paths):
+        for idx, path in enumerate(image_paths[:total]):
             images.append(cv2.imread(path))
             my_print(idx)
     else:
-        for idx, path in enumerate(image_paths):
+        for idx, path in enumerate(image_paths[total]):
             images.append(preprocess(cv2.imread(path)))
             my_print(idx)
     return np.array(images)
