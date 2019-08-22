@@ -1,3 +1,10 @@
+import random
+from distutils.version import LooseVersion
+
+import numpy as np
+import skimage
+
+
 def resize(image, output_shape, order=1, mode='constant', cval=0, clip=True,
            preserve_range=False, anti_aliasing=False, anti_aliasing_sigma=None):
     """A wrapper for Scikit-Image resize().
