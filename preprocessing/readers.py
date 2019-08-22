@@ -61,6 +61,34 @@ def read_given_images(root, names, preprocess=None):
     return np.array(images)
 
 
+def read_given_images_with_details(root, names, size, total=None, preprocess=None):
+    """
+    Read images specified in names in given order
+    :param root: Root directory of images
+    :param names: list of image names placed in root
+    :param preprocess: Functor for preprocessing
+    :return: Numpy array of images
+    """
+    width_ratios = []
+    height_ratios = []
+    images = []
+    if total is None:
+        total = len(names)
+    if preprocess is None:
+        for idx, path in enumerate(names[:total]):
+            images.append(cv2.imread(os.path.join(root, path)))
+            my_print(idx)
+    else:
+        for idx, path in enumerate(names[:total]):
+            img = cv2.imread(os.path.join(root, path))
+            width_ratios.append(size[1] / img.shape[1])
+            height_ratios.append(size[0] / img.shape[0])
+            images.append(preprocess(img))
+            my_print(idx)
+    return np.array(images), height_ratios, width_ratios
+
+
+
 def load_bbox_annotations(Path, names=None):
     if names is None:
         xmls = glob.glob(Path + "/*.xml")
