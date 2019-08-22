@@ -61,7 +61,7 @@ def read_given_images(root, names, preprocess=None):
     return np.array(images)
 
 
-def read_given_images_with_details(root, names, size, total=None, preprocess=None):
+def read_given_images_with_ratios(root, names, size, total=None, preprocess=None):
     """
     Read images specified in names in given order
     :param root: Root directory of images
