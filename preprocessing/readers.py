@@ -1,13 +1,11 @@
 import glob
 import os
 import xml.etree.ElementTree as ET
-
 import cv2
 import h5py
 import numpy as np
 
 from ..others.print import my_print
-
 
 def read_hdf5(inputPath, dataset="images"):
     files = h5py.File(inputPath, 'r')
@@ -89,8 +87,6 @@ def read_given_images_with_ratios(root, names, size, total=None, preprocess=None
             images.append(preprocess(img))
             my_print(idx)
     return np.array(images), height_ratios, width_ratios
-
-
 
 def load_bbox_annotations(Path, names=None):
     if names is None:
