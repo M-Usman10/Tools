@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from PIL import Image
+import cv2
 from mpl_toolkits.mplot3d import Axes3D
 
 def visualize_landmarks(images, keypoints_labels):
@@ -29,3 +30,9 @@ def visualize_landmarks(images, keypoints_labels):
         ax = fig.add_subplot(rows, columns, i * 2 + 2)
         ax.imshow(img)
     plt.show()
+
+def show_box(img,box):
+  x1, y1, x2, y2 =box.astype(int)
+  img=cv2.rectangle(img.copy(),(x1,y1),(x2,y2),(255,255,255),4)
+  plt.imshow(img[...,::-1])
+  plt.show()
