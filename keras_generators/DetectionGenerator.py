@@ -1,5 +1,5 @@
 import keras
-from ..Augment.bbox_util import *
+
 from ..Augment.data_aug import *
 
 
@@ -13,7 +13,7 @@ class DataGenerator(keras.utils.Sequence):
         self.X=X
         self.y=y
         self.on_epoch_end()
-        self.prob=self.prob
+        self.prob = prob
         #RandomHSV(40, 40, 30)
         self.aug=Sequence([RandomHorizontalFlip(), RandomScale(diff = True), RandomTranslate(), RandomRotate(10), RandomShear()],probs=self.prob)
 
