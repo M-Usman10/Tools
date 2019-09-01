@@ -1,7 +1,8 @@
+import os
 import random
 import sys
-import os
-from data_aug.bbox_util import *
+
+from .data_aug.bbox_util import *
 
 lib_path = os.path.join(os.path.realpath("."), "data_aug")
 sys.path.append(lib_path)
