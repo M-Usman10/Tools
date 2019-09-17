@@ -34,11 +34,11 @@ def read_images(inputPath, preprocess=None, format='', total=None, sorted=False)
     if preprocess is None:
         for idx, path in enumerate(image_paths[:total]):
             images.append(cv2.imread(path))
-            my_print(idx)
+            my_print("Reading Img: "+str(idx+1)+"/"+str(total))
     else:
-        for idx, path in enumerate(image_paths[total]):
+        for idx, path in enumerate(image_paths[:total]):
             images.append(preprocess(cv2.imread(path)))
-            my_print(idx)
+            my_print("Reading Img: "+str(idx+1)+"/"+str(total))
     return np.array(images)
 
 
@@ -106,3 +106,34 @@ def load_bbox_annotations(Path, names=None):
             boxes.append(new_box)
         AllBoxes.append(boxes)
     return AllBoxes
+
+def read_img_boxes(boxStr,Img,allowed=['chair','person'] ,n=4):
+    txt=boxStr.split('|')
+    name=txt[0]
+    boxes=txt[1:]
+    if Img!=None:
+        if name!=Img:
+            return None,None
+    l=[]
+    names=[]
+    for box in boxes:
+        res=box.split(',')
+        if res[0] not in allowed:
+            continue
+        b=res[-n:]
+        l.append(b)
+        names.append(res[0])
+    return l,names
+
+
+def read_boxes(fileName,Img=None,n=4,allowed=['chair','person']):
+    with open(fileName) as file:
+        imgStrs=file.read().strip().split('\n')
+        allBoxes=[]
+        allNames=[]
+        for imgStr in imgStrs:
+            res,names=read_img_boxes(imgStr,Img,n=n,allowed=allowed)
+            if res!=None:
+                allBoxes.append(res)
+                allNames.append(names)
+        return allBoxes,allNames

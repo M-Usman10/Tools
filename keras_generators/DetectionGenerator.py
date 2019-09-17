@@ -2,7 +2,6 @@ import keras
 
 from ..Augment.data_aug import *
 
-
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, X, y, batch_size=32, shuffle=True,prob=0.3):
