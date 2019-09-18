@@ -14,7 +14,7 @@ def resize(image, output_shape, order=1, mode='constant', cval=0, clip=True,
     version. And it provides a central place to control resizing defaults.
     """
     if LooseVersion(skimage.__version__) >= LooseVersion("0.14"):
-        # New in 0.14: anti_aliasing. Default it to False for backward
+        # New in 0.14: anti_aliasing. Default it to False for bacresize_imagekward
         # compatibility with skimage 0.13.
         return skimage.transform.resize(
             image, output_shape,

@@ -113,7 +113,7 @@ def read_img_boxes(boxStr,Img,allowed=['chair','person'] ,n=4):
     boxes=txt[1:]
     if Img!=None:
         if name!=Img:
-            return None,None
+            return None,None,None
     l=[]
     names=[]
     for box in boxes:
@@ -123,7 +123,7 @@ def read_img_boxes(boxStr,Img,allowed=['chair','person'] ,n=4):
         b=res[-n:]
         l.append(b)
         names.append(res[0])
-    return l,names
+    return l,names,name
 
 
 def read_boxes(fileName,Img=None,n=4,allowed=['chair','person']):
@@ -131,9 +131,11 @@ def read_boxes(fileName,Img=None,n=4,allowed=['chair','person']):
         imgStrs=file.read().strip().split('\n')
         allBoxes=[]
         allNames=[]
+        img_names=[]
         for imgStr in imgStrs:
-            res,names=read_img_boxes(imgStr,Img,n=n,allowed=allowed)
+            res,names,img_name=read_img_boxes(imgStr,Img,n=n,allowed=allowed)
             if res!=None:
                 allBoxes.append(res)
                 allNames.append(names)
-        return allBoxes,allNames
+                img_names.append(img_name)
+        return allBoxes,allNames,img_names

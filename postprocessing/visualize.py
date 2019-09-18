@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 from PIL import Image
+from ..preprocessing.resizers import resize_image
 from ..preprocessing.readers import read_boxes,read_images
 from ..postprocessing.detection import non_max_suppression
 import cv2
 import os
+
 from mpl_toolkits.mplot3d import Axes3D
 
 colors={"person":(255,255,0),"chair":(255,255,255),"bottle":(0,0,255),"Furniture":(0,0,255),"diningtable":(255,0,0),"Table":(255,0,0),"wineglass":(50,50,50),"cup":(0,0,0)}
@@ -52,7 +54,7 @@ def visualize(img,boxes,names=None,dict_=None,vis=True):
         else:
             cv2.rectangle(img, (left, top), (right, bottom), (255,255,255), 1)
     if vis:
-        plt.subplots(figsize=(10, 10))
+        plt.subplots(figsize=(6, 6))
         plt.imshow(img[...,::-1])
         plt.show()
     return img
@@ -68,7 +70,7 @@ def visualize_boxes_in_dir(path,allowed_objs = [ "person", "chair"],img_format='
     labels=labels[0]
     boxes, names = read_boxes(labels, allowed=allowed_objs)
     def preprocess(img,shape=img_shape):
-        return trans.resize(img,shape)
+        return resize_image(img,shape[0],shape[1])[0]
     imgs=read_images(path,format=img_format,sorted=True,preprocess=preprocess,total=5)
     print (imgs.shape)
     res=[]

@@ -61,3 +61,19 @@ def saveAsHdf5(inputPath,OutputFile,preprocess=None,dataName='images',inpFormat=
             file=reader(i)
             file=preprocess(file)
             hdf5_store.append(file)
+
+def dense_box_to_file_box(inpPath,outPath):
+    """
+       Convert Dense Box Format (1 file for all images) used in my Object Detection work to standard File format,
+       one file per image
+       Params:
+       path: path of dense format file
+     """
+    from .readers import read_boxes
+    import os
+    boxes,names,img_names=read_boxes(inpPath,allowed=None)
+    for i in range(len(names)):
+        with open(os.path.join(outPath ,os.path.basename(img_names[i])+'.txt'),'w+') as file:
+            curr_boxes,curr_names=boxes[i],names[i]
+            for j in range(len(curr_boxes)):
+                file.write(curr_names[j]+','+','.join(curr_boxes[j].astype(str))+'\n')
