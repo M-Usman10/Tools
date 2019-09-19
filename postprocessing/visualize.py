@@ -1,12 +1,12 @@
-import matplotlib.pyplot as plt
-from PIL import Image
-from ..preprocessing.resizers import resize_image
-from ..preprocessing.readers import read_boxes,read_images
-from ..postprocessing.detection import non_max_suppression
-import cv2
 import os
 
-from mpl_toolkits.mplot3d import Axes3D
+import cv2
+import matplotlib.pyplot as plt
+from PIL import Image
+
+from ..postprocessing.detection import non_max_suppression
+from ..preprocessing.readers import read_boxes, read_images
+from ..preprocessing.resizers import resize_image
 
 colors={"person":(255,255,0),"chair":(255,255,255),"bottle":(0,0,255),"Furniture":(0,0,255),"diningtable":(255,0,0),"Table":(255,0,0),"wineglass":(50,50,50),"cup":(0,0,0)}
 
@@ -46,12 +46,15 @@ def show_box(img,box):
 
 
 def visualize(img,boxes,names=None,dict_=None,vis=True):
-
+    font = cv2.FONT_HERSHEY_SIMPLEX
     for i,box in enumerate(boxes):
         top, left, bottom, right=box.astype(float).astype(int)
-        if dict_ is not None:
+        if dict_ is not None and names[i] in dict_.keys():
+            cv2.putText(img, names[i], (left, top), font, .4, (0, 0, 255), 1, cv2.LINE_AA)
             cv2.rectangle(img,(left,top),(right,bottom),dict_[names[i]], 1)
         else:
+            if names is not None:
+                cv2.putText(img, names[i], (left, top), font, .4, (0, 0, 255), 1, cv2.LINE_AA)
             cv2.rectangle(img, (left, top), (right, bottom), (255,255,255), 1)
     if vis:
         plt.subplots(figsize=(6, 6))
@@ -60,21 +63,28 @@ def visualize(img,boxes,names=None,dict_=None,vis=True):
     return img
 
 
-def visualize_boxes_in_dir(path,allowed_objs = [ "person", "chair"],img_format='.jpg',img_shape=(416,416,3),nms=0.8):
+def visualize_boxes_in_dir(imgs_path, label_path, allowed_objs=None, img_format='.jpg', img_shape=(416, 416, 3),
+                           nms=0.8):
     """Directory containing images and one txt file for boxes"""
     import glob
-    import skimage.transform as trans
     import numpy as np
-    labels=glob.glob(os.path.join(path,"*.txt"))
-    print(labels)
+    labels = glob.glob(os.path.join(label_path, "*.txt"))
     labels=labels[0]
-    boxes, names = read_boxes(labels, allowed=allowed_objs)
+    boxes, names_boxes, img_names = read_boxes(labels, allowed=allowed_objs)
     def preprocess(img,shape=img_shape):
         return resize_image(img,shape[0],shape[1])[0]
-    imgs=read_images(path,format=img_format,sorted=True,preprocess=preprocess,total=5)
-    print (imgs.shape)
+
+    imgs, names_imgs = read_images(imgs_path, format=img_format, sorted=False, preprocess=preprocess, total=5)
     res=[]
-    for i in range(len(imgs)):
-        pick = non_max_suppression(np.array(boxes[i]).astype(float).astype(int), 0.8)
-        res.append(visualize(imgs[i].copy(), np.array(boxes[i])[pick], names=np.array(names[i])[pick], dict_=colors))
+    for img_idx, name in enumerate(names_imgs):
+        idx_box = np.where(name == img_names)[0][0]
+        pick = non_max_suppression(np.array(boxes[idx_box]).astype(float).astype(int), 0.65)
+
+        res.append(
+            visualize(imgs[img_idx].copy(), np.array(boxes[idx_box])[pick], names=np.array(names_boxes[idx_box])[pick],
+                      dict_=colors))
+
+    # for i in range(len(imgs)):
+    #     pick = non_max_suppression(np.array(boxes[i]).astype(float).astype(int), 0.8)
+    #     res.append(visualize(imgs[i].copy(), np.array(boxes[i])[pick], names=np.array(names[i])[pick], dict_=colors))
     return res

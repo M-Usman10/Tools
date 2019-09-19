@@ -1,11 +1,13 @@
 import glob
 import os
 import xml.etree.ElementTree as ET
+
 import cv2
 import h5py
 import numpy as np
 
 from ..others.print import my_print
+
 
 def read_hdf5(inputPath, dataset="images"):
     files = h5py.File(inputPath, 'r')
@@ -34,12 +36,15 @@ def read_images(inputPath, preprocess=None, format='', total=None, sorted=False)
     if preprocess is None:
         for idx, path in enumerate(image_paths[:total]):
             images.append(cv2.imread(path))
-            my_print("Reading Img: "+str(idx+1)+"/"+str(total))
+            my_print("R   eading Img: " + str(idx + 1) + "/" + str(total))
     else:
         for idx, path in enumerate(image_paths[:total]):
             images.append(preprocess(cv2.imread(path)))
-            my_print("Reading Img: "+str(idx+1)+"/"+str(total))
-    return np.array(images)
+            my_print("Reading Img: " + str(idx + 1) + "/" + str(total))
+    names = []
+    for path in image_paths:
+        names.append(os.path.basename(path))
+    return np.array(images), np.array(names)
 
 
 def read_given_images(root, names, preprocess=None):
@@ -88,6 +93,7 @@ def read_given_images_with_ratios(root, names, size, total=None, preprocess=None
             my_print(idx)
     return np.array(images), height_ratios, width_ratios
 
+
 def load_bbox_annotations(Path, names=None):
     if names is None:
         xmls = glob.glob(Path + "/*.xml")
@@ -107,35 +113,75 @@ def load_bbox_annotations(Path, names=None):
         AllBoxes.append(boxes)
     return AllBoxes
 
-def read_img_boxes(boxStr,Img,allowed=['chair','person'] ,n=4):
-    txt=boxStr.split('|')
-    name=txt[0]
-    boxes=txt[1:]
-    if Img!=None:
-        if name!=Img:
-            return None,None,None
-    l=[]
-    names=[]
+
+def read_img_boxes(boxStr, Img, allowed=['chair', 'person'], n=4):
+    txt = boxStr.split('|')
+    name = txt[0]
+    boxes = txt[1:]
+    if Img != None:
+        if name != Img:
+            return None, None, None
+    l = []
+    names = []
     for box in boxes:
-        res=box.split(',')
-        if res[0] not in allowed:
+        res = box.split(',')
+        if allowed is not None and res[0] not in allowed:
             continue
-        b=res[-n:]
+
+        b = res[-n:]
         l.append(b)
         names.append(res[0])
-    return l,names,name
+    return l, names, name
 
 
-def read_boxes(fileName,Img=None,n=4,allowed=['chair','person']):
+def read_boxes(fileName, Img=None, n=4, allowed=['chair', 'person']):
     with open(fileName) as file:
-        imgStrs=file.read().strip().split('\n')
-        allBoxes=[]
-        allNames=[]
-        img_names=[]
+        imgStrs = file.read().strip().split('\n')
+        allBoxes = []
+        allNames = []
+        img_names = []
         for imgStr in imgStrs:
-            res,names,img_name=read_img_boxes(imgStr,Img,n=n,allowed=allowed)
-            if res!=None:
+            res, names, img_name = read_img_boxes(imgStr, Img, n=n, allowed=allowed)
+            if res != None:
                 allBoxes.append(res)
                 allNames.append(names)
                 img_names.append(img_name)
-        return allBoxes,allNames,img_names
+        return allBoxes, allNames, np.array(img_names)
+
+
+def read_boxes_from_txt(paths, delimeter=' ', allowed_objects=None):
+    """
+
+    Parameters
+    ----------
+    paths: List
+        Paths of txt files, 1 for each each image
+    delimeter: string
+        Value separator of a box line
+    allowed_objects: List or None
+        Object that will be included in return results, if None all objects are included
+    Returns
+    -------
+    3D List
+        List of boxes which can be accessed as Boxes[img_ind][obj_no]
+    2D List
+        List of names which can be accessed as Names[img_ind][obj_no]
+    """
+    AllBoxes = []
+    AllNames = []
+    allowed_objects = set(allowed_objects)  # Hashing to search in O(1) on average
+    for path in paths:
+        with open(path, 'r') as file:
+            lines = file.read().split('\n')
+        obj_names = []
+        boxes = []
+        for line in lines:
+            values = line.split(delimeter)
+            obj_name = values[0]
+            box = values[-4:]
+            if obj_name in allowed_objects or allowed_objects is None:
+                boxes.append(box)
+                obj_names.append(obj_name)
+        AllBoxes.append(boxes)
+        AllNames.append(obj_names)
+    return AllBoxes, AllNames

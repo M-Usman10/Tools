@@ -62,18 +62,24 @@ def saveAsHdf5(inputPath,OutputFile,preprocess=None,dataName='images',inpFormat=
             file=preprocess(file)
             hdf5_store.append(file)
 
-def dense_box_to_file_box(inpPath,outPath):
+
+def dense_box_to_file_box(inpPath, outPath, valueSeparator=' ', objectSeparator='\n', allowed_objects=None):
     """
        Convert Dense Box Format (1 file for all images) used in my Object Detection work to standard File format,
        one file per image
        Params:
        path: path of dense format file
+       valueSeparator: Save BBOX in txt file by separating their values with this separator
+       objectSeparator: Save BBOXes separated by this Separator
      """
     from .readers import read_boxes
     import os
-    boxes,names,img_names=read_boxes(inpPath,allowed=None)
+    if not (os.path.isdir(outPath)):
+        os.mkdir(outPath)
+    boxes, names, img_names = read_boxes(inpPath, allowed=allowed_objects)
     for i in range(len(names)):
-        with open(os.path.join(outPath ,os.path.basename(img_names[i])+'.txt'),'w+') as file:
+        filename = os.path.join(outPath, os.path.basename(img_names[i]).split('.')[0] + '.txt')
+        with open(filename, 'a') as file:
             curr_boxes,curr_names=boxes[i],names[i]
             for j in range(len(curr_boxes)):
-                file.write(curr_names[j]+','+','.join(curr_boxes[j].astype(str))+'\n')
+                file.write(curr_names[j] + valueSeparator + valueSeparator.join(curr_boxes[j]) + objectSeparator)
