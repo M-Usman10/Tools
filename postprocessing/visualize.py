@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 from ..postprocessing.detection import non_max_suppression
-from ..preprocessing.readers import read_boxes, read_images
+from ..preprocessing.readers import read_boxes_from_txt, read_boxes,read_images
 from ..preprocessing.resizers import resize_image
 
 colors={"person":(255,255,0),"chair":(255,255,255),"bottle":(0,0,255),"Furniture":(0,0,255),"diningtable":(255,0,0),"Table":(255,0,0),"wineglass":(50,50,50),"cup":(0,0,0)}
@@ -50,12 +50,12 @@ def visualize(img,boxes,names=None,dict_=None,vis=True):
     for i,box in enumerate(boxes):
         top, left, bottom, right=box.astype(float).astype(int)
         if dict_ is not None and names[i] in dict_.keys():
-            cv2.putText(img, names[i], (left, top), font, .4, (0, 0, 255), 1, cv2.LINE_AA)
-            cv2.rectangle(img,(left,top),(right,bottom),dict_[names[i]], 1)
+            cv2.putText(img, names[i], (left, top), font, 2, (0, 0, 255), 1, cv2.LINE_AA)
+            cv2.rectangle(img,(left,top),(right,bottom),dict_[names[i]], 3)
         else:
             if names is not None:
-                cv2.putText(img, names[i], (left, top), font, .4, (0, 0, 255), 1, cv2.LINE_AA)
-            cv2.rectangle(img, (left, top), (right, bottom), (255,255,255), 1)
+                cv2.putText(img, names[i], (left, top), font, 2, (0, 0, 255), 1, cv2.LINE_AA)
+            cv2.rectangle(img, (left, top), (right, bottom), (255,255,255), 3)
     if vis:
         plt.subplots(figsize=(6, 6))
         plt.imshow(img[...,::-1])
@@ -63,9 +63,28 @@ def visualize(img,boxes,names=None,dict_=None,vis=True):
     return img
 
 
-def visualize_boxes_in_dir(imgs_path, label_path, allowed_objs=None, img_format='.jpg', img_shape=(416, 416, 3),
-                           nms=0.8):
-    """Directory containing images and one txt file for boxes"""
+def visualize_boxes_dense(imgs_path, label_path, allowed_objs=None, img_format='.jpg', img_shape=(416, 416, 3), nms=0.8):
+    """
+
+    Parameters
+    ----------
+    imgs_path: string
+        Directory path containing Images
+    label_path: string
+        File containing boxes in Dense Format
+    allowed_objs: List or None
+        Objects types that will be loaded, if None all types will be loaded
+    img_format: string
+        Allowed Formats to read from Img directory e.g. ".jpg"
+    img_shape: Tuple of 3 values
+        Shape of Images used while box detection
+    nms
+        Non-maxim
+    Returns
+    -------
+    List
+        All the images with boxes drawn on them
+    """
     import glob
     import numpy as np
     labels = glob.glob(os.path.join(label_path, "*.txt"))
@@ -73,7 +92,6 @@ def visualize_boxes_in_dir(imgs_path, label_path, allowed_objs=None, img_format=
     boxes, names_boxes, img_names = read_boxes(labels, allowed=allowed_objs)
     def preprocess(img,shape=img_shape):
         return resize_image(img,shape[0],shape[1])[0]
-
     imgs, names_imgs = read_images(imgs_path, format=img_format, sorted=False, preprocess=preprocess, total=5)
     res=[]
     for img_idx, name in enumerate(names_imgs):
@@ -83,8 +101,44 @@ def visualize_boxes_in_dir(imgs_path, label_path, allowed_objs=None, img_format=
         res.append(
             visualize(imgs[img_idx].copy(), np.array(boxes[idx_box])[pick], names=np.array(names_boxes[idx_box])[pick],
                       dict_=colors))
+    return res
 
-    # for i in range(len(imgs)):
-    #     pick = non_max_suppression(np.array(boxes[i]).astype(float).astype(int), 0.8)
-    #     res.append(visualize(imgs[i].copy(), np.array(boxes[i])[pick], names=np.array(names[i])[pick], dict_=colors))
+
+def visualize_boxes_txt(img_dir, boxes_dir, allowed_objs=["Table","Desk","Bottle"], img_format='.jpg', img_shape=(416, 416, 3), nms=0.8):
+    """
+
+        Parameters
+        ----------
+        img_dir: string
+            Directory path containing Images
+        boxes_dir: string
+            File containing boxes in Dense Format
+        allowed_objs: List or None
+            Objects types that will be loaded, if None all types will be loaded
+        img_format: string
+            Allowed Formats to read from Img directory e.g. ".jpg"
+        img_shape: Tuple of 3 values
+            Shape of Images used while box detection
+        nms
+            Non-maxim
+        Returns
+        -------
+        List
+            All the images with boxes drawn on them
+        """
+    import numpy as np
+    def preprocess(img, shape=img_shape):
+        return img
+    #     return resize_image(img, shape[0], shape[1])[0]
+    imgs, imgs_names = read_images(img_dir, format=img_format, sorted=False, preprocess=preprocess, total=5)
+    boxes_paths=[]
+    for i in range(len(imgs_names)):
+        boxes_paths.append(os.path.join(boxes_dir,imgs_names[i].split('.')[0]+'.txt'))
+    boxes, obj_names = read_boxes_from_txt(boxes_paths, allowed_objects=allowed_objs)
+    res = []
+    for i in range(len(imgs_names)):
+        pick = non_max_suppression(np.array(boxes[i]).astype(float).astype(int), nms)
+        res.append(
+            visualize(imgs[i].copy(), np.array(boxes[i])[pick], names=np.array(obj_names[i])[pick],
+                      dict_=colors))
     return res

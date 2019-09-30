@@ -42,7 +42,9 @@ def read_images(inputPath, preprocess=None, format='', total=None, sorted=False)
             images.append(preprocess(cv2.imread(path)))
             my_print("Reading Img: " + str(idx + 1) + "/" + str(total))
     names = []
-    for path in image_paths:
+    if total is None:
+        total=len(image_paths)
+    for path in image_paths[:total]:
         names.append(os.path.basename(path))
     return np.array(images), np.array(names)
 
@@ -169,19 +171,62 @@ def read_boxes_from_txt(paths, delimeter=' ', allowed_objects=None):
     """
     AllBoxes = []
     AllNames = []
-    allowed_objects = set(allowed_objects)  # Hashing to search in O(1) on average
+    if allowed_objects is not None:
+        allowed_objects = set(allowed_objects)  # Hashing to search in O(1) on average
     for path in paths:
         with open(path, 'r') as file:
-            lines = file.read().split('\n')
+            lines = file.read().strip().split('\n')
         obj_names = []
         boxes = []
         for line in lines:
             values = line.split(delimeter)
             obj_name = values[0]
             box = values[-4:]
-            if obj_name in allowed_objects or allowed_objects is None:
-                boxes.append(box)
-                obj_names.append(obj_name)
+            # box=[box[1],box[0],box[3],box[2]]
+            if  (allowed_objects is not None) and (obj_name not in allowed_objects):
+                continue
+            boxes.append(box)
+            obj_names.append(obj_name)
+        AllBoxes.append(boxes)
+        AllNames.append(obj_names)
+    return AllBoxes, AllNames
+
+def read_boxes_from_txt2(paths, delimeter=' ', allowed_objects=None):
+    """
+
+    Parameters
+    ----------
+    paths: List
+        Paths of txt files, 1 for each each image
+    delimeter: string
+        Value separator of a box line
+    allowed_objects: List or None
+        Object that will be included in return results, if None all objects are included
+    Returns
+    -------
+    3D List
+        List of boxes which can be accessed as Boxes[img_ind][obj_no]
+    2D List
+        List of names which can be accessed as Names[img_ind][obj_no]
+    """
+    AllBoxes = []
+    AllNames = []
+    if allowed_objects is not None:
+        allowed_objects = set(allowed_objects)  # Hashing to search in O(1) on average
+    for path in paths:
+        with open(path, 'r') as file:
+            lines = file.read().strip().split('\n')
+        obj_names = []
+        boxes = []
+        for line in lines:
+            values = line.split(delimeter)
+            obj_name = values[0]
+            box = values[-4:]
+            box=[box[1],box[0],box[3],box[2]]
+            if  (allowed_objects is not None) and (obj_name not in allowed_objects):
+                continue
+            boxes.append(box)
+            obj_names.append(obj_name)
         AllBoxes.append(boxes)
         AllNames.append(obj_names)
     return AllBoxes, AllNames
