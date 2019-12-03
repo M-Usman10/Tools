@@ -96,6 +96,9 @@ def read_given_images_with_ratios(root, names, size, total=None, preprocess=None
     return np.array(images), height_ratios, width_ratios
 
 
+
+
+
 def load_bbox_annotations(Path, names=None):
     if names is None:
         xmls = glob.glob(Path + "/*.xml")
@@ -230,3 +233,42 @@ def read_boxes_from_txt2(paths, delimeter=' ', allowed_objects=None):
         AllBoxes.append(boxes)
         AllNames.append(obj_names)
     return AllBoxes, AllNames
+
+class VideoReader:
+    def __init__(self, path, step_size=0, reshape_size=(512, 512)):
+        self.path = path
+        self.step_size = step_size
+        self.curr_frame_no = 0
+        self.video_finished = False
+        self.reshape_size = reshape_size
+
+    def __enter__(self):
+        self.cap = cv2.VideoCapture(self.path)
+        return self
+
+    def read(self):
+        success, frame = self.cap.read()
+        if not success:
+            self.video_finished = True
+            return success, frame
+        for _ in range(self.step_size - 1):
+            s, f = self.cap.read()
+            if not s:
+                self.video_finished = True
+                break
+        return success, frame
+
+    def read_all(self):
+        frames_list = []
+        while not self.video_finished:
+            success, frame = self.read()
+            if success:
+                # frame = resize(frame , self.reshape_size ) * 255).astype(np.uint8)
+                frames_list.append(frame)
+
+        return frames_list
+
+    def __exit__(self, a, b, c):
+        self.cap.release()
+        cv2.destroyAllWindows()
+
