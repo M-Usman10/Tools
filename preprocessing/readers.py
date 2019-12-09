@@ -117,6 +117,7 @@ def read_boxes_from_xml(path):
             box.append(int(child.text))
         new_box = [box[1], box[0], box[3], box[2]]
         boxes.append(new_box)
+    return np.array(boxes)
 
 def load_bbox_annotations(Path, names=None):
     if names is None:
