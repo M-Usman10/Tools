@@ -96,8 +96,27 @@ def read_given_images_with_ratios(root, names, size, total=None, preprocess=None
     return np.array(images), height_ratios, width_ratios
 
 
+def read_boxes_from_xml(path):
+    """
 
+    Parameters
+    ----------
+    path: Path of xml file
 
+    Returns
+    -------
+        2D array of bounding boxes
+    """
+
+    root = ET.parse(path).getroot()
+    objects = root.findall('object')
+    boxes = []
+    for obj in objects:
+        box = []
+        for child in obj.find('bndbox'):
+            box.append(int(child.text))
+        new_box = [box[1], box[0], box[3], box[2]]
+        boxes.append(new_box)
 
 def load_bbox_annotations(Path, names=None):
     if names is None:
@@ -106,16 +125,7 @@ def load_bbox_annotations(Path, names=None):
         xmls = names
     AllBoxes = []
     for xml in xmls:
-        root = ET.parse(xml).getroot()
-        objects = root.findall('object')
-        boxes = []
-        for obj in objects:
-            box = []
-            for child in obj.find('bndbox'):
-                box.append(int(child.text))
-            new_box = [box[1], box[0], box[3], box[2]]
-            boxes.append(new_box)
-        AllBoxes.append(boxes)
+        AllBoxes.append(read_boxes_from_xml(xml))
     return AllBoxes
 
 
