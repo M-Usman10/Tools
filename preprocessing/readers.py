@@ -111,13 +111,16 @@ def read_boxes_from_xml(path):
     root = ET.parse(path).getroot()
     objects = root.findall('object')
     boxes = []
+    names= []
     for obj in objects:
         box = []
+        name=obj.find("name").text
         for child in obj.find('bndbox'):
             box.append(int(child.text))
         new_box = [box[1], box[0], box[3], box[2]]
         boxes.append(new_box)
-    return np.array(boxes)
+        names.append(name)
+    return np.array(boxes),names
 
 def load_bbox_annotations(Path, names=None):
     if names is None:
