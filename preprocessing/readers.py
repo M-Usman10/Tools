@@ -286,3 +286,20 @@ class VideoReader:
         self.cap.release()
         cv2.destroyAllWindows()
 
+def read_video(video_path, skip_step):
+    """
+
+    Parameters
+    ----------
+    video_path: string
+            Path of video to be read
+    skip_step: int
+            No of frames to skip while reading the video
+    Returns
+    -------
+            Numpy Array of All frames from the video in uint8 format
+    """
+    with VideoReader(path=video_path,step_size=skip_step) as reader:
+        frames = reader.read_all()
+
+    return np.array(frames,dtype=np.uint8)
