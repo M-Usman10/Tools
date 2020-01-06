@@ -45,15 +45,16 @@ def show_box(img,box):
   plt.show()
 
 
-def visualize(img,boxes,names=None,dict_=None,vis=True):
+def visualize(img,boxes,names=None,dict_=None,vis=True, write_names=False):
     font = cv2.FONT_HERSHEY_SIMPLEX
     for i,box in enumerate(boxes):
         top, left, bottom, right=box.astype(float).astype(int)
         if dict_ is not None and names[i] in dict_.keys():
-            cv2.putText(img, names[i], (left, top), font, 2, (0, 0, 255), 1, cv2.LINE_AA)
+            if write_names:
+                cv2.putText(img, names[i], (left, top), font, 2, (0, 0, 255), 1, cv2.LINE_AA)
             cv2.rectangle(img,(left,top),(right,bottom),dict_[names[i]], 3)
         else:
-            if names is not None:
+            if write_names:
                 cv2.putText(img, names[i], (left, top), font, 2, (0, 0, 255), 1, cv2.LINE_AA)
             cv2.rectangle(img, (left, top), (right, bottom), (255,255,255), 3)
     if vis:
