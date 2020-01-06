@@ -279,7 +279,6 @@ class VideoReader:
             if success:
                 # frame = resize(frame , self.reshape_size ) * 255).astype(np.uint8)
                 frames_list.append(frame)
-
         return frames_list
 
     def __exit__(self, a, b, c):
@@ -303,3 +302,10 @@ def read_video(video_path, skip_step):
         frames = reader.read_all()
 
     return np.array(frames,dtype=np.uint8)
+
+
+def read_fps(video_path):
+    cap = cv2.VideoCapture(video_path)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    cap.release()
+    return fps
