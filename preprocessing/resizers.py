@@ -1,8 +1,32 @@
 import random
 from distutils.version import LooseVersion
-
+from skimage
 import numpy as np
 import skimage
+
+def resize_with_aspect_ratio(image, size):
+    """
+
+    Parameters
+    ----------
+    image: Numpy Array of shape (N,M,3)
+    size: Integer representing
+
+    Returns
+    -------
+        Numpy Array of shape (size,size,3)
+    """
+    if image.shape[0] > image.shape[1]:
+        h,w = size, int((size/image.shape[0])*image.shape[1])
+        resized_image = resize(image, (h,w,3),preserve_range=True)
+        pad_w = (size - w)/2
+        resized_image = np.pad(resized_image, [(0,0),(int(np.floor(pad_w)), int(np.ceil(pad_w))),(0,0)])
+    else:
+        h, w = int((size / image.shape[1]) * image.shape[0]),size
+        resized_image = resize(image, (h, w, 3), preserve_range=True)
+        pad_w = (size - h)/2
+        resized_image=np.pad(resized_image, [(int(np.floor(pad_w)), int(np.ceil(pad_w))),(0, 0),(0,0)])
+    return resized_image
 
 
 def resize(image, output_shape, order=1, mode='constant', cval=0, clip=True,
