@@ -25,6 +25,7 @@ def resize(image, output_shape, order=1, mode='constant', cval=0, clip=True,
             order=order, mode=mode, cval=cval, clip=clip,
             preserve_range=preserve_range)
 
+
 def resize_with_aspect_ratio(image, size):
     """
 
@@ -37,17 +38,19 @@ def resize_with_aspect_ratio(image, size):
     -------
         Numpy Array of shape (size,size,3)
     """
+
     if image.shape[0] > image.shape[1]:
         h,w = size, int((size/image.shape[0])*image.shape[1])
         resized_image = resize(image, (h,w,3),preserve_range=True)
         pad_w = (size - w)/2
-        resized_image = np.pad(resized_image, [(0,0),(int(np.floor(pad_w)), int(np.ceil(pad_w))),(0,0)])
+        resized_image = np.pad(resized_image, [(0,0),(int(np.floor(pad_w)), int(np.ceil(pad_w))),(0,0)],mode='constant', constant_values=(0, 0))
     else:
         h, w = int((size / image.shape[1]) * image.shape[0]),size
         resized_image = resize(image, (h, w, 3), preserve_range=True)
         pad_w = (size - h)/2
-        resized_image=np.pad(resized_image, [(int(np.floor(pad_w)), int(np.ceil(pad_w))),(0, 0),(0,0)])
+        resized_image=np.pad(resized_image, [(int(np.floor(pad_w)), int(np.ceil(pad_w))),(0, 0),(0,0)],mode='constant', constant_values=(0, 0))
     return resized_image
+
 
 def resize_image(image, min_dim=None, max_dim=None, min_scale=None, mode="square"):
     """Resizes an image keeping the aspect ratio unchanged.
