@@ -11,4 +11,4 @@ def enumerate_t(iter,total_len=None,beta = 0.97):
         if total_len is not None:
             diff = (total_len-count)*diff
             diff_avg = beta* diff_avg + (1-beta)*diff
-        yield count, diff, item
+        yield count, diff_avg, item
