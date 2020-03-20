@@ -48,6 +48,48 @@ def read_images(inputPath, preprocess=None, format='', total=None, sorted=False)
         names.append(os.path.basename(path))
     return np.array(images), np.array(names)
 
+def read_images(inputPath, preprocess=None, format='', reqursive=False,total=None, sorted=False):
+    """
+
+    :param inputPath: Path of directory where images are placed
+    :param preprocess: Functor for preprocessing
+    :param format: '.jpg' etc.
+    :return: Numpy array of images
+    """
+
+    images = []
+    if reqursive == False:
+        image_paths = np.array(glob.glob(os.path.join(inputPath, '*' + format)))
+    else:
+        image_paths = []
+        for dir_, sub_dirs, files in os.walk(inputPath):
+            for file in files:
+                image_paths.append(os.path.join(dir_, file))
+        image_paths = np.array(image_paths)
+
+    if total is None:
+        total = len(image_paths)
+    if sorted:
+        l = []
+        for path in image_paths:
+            l.append(int(os.path.basename(path).split('.')[0]))
+        idx = np.argsort(l)
+        image_paths = image_paths[idx]
+    if preprocess is None:
+        for idx, path in enumerate(image_paths[:total]):
+            images.append(cv2.imread(path))
+            my_print("R   eading Img: " + str(idx + 1) + "/" + str(total))
+    else:
+        for idx, path in enumerate(image_paths[:total]):
+            images.append(preprocess(cv2.imread(path)))
+            my_print("Reading Img: " + str(idx + 1) + "/" + str(total))
+    names = []
+    if total is None:
+        total=len(image_paths)
+    for path in image_paths[:total]:
+        names.append(os.path.basename(path))
+    return np.array(images), np.array(names)
+
 
 def read_given_images(root, names, preprocess=None):
     """
