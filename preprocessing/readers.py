@@ -78,7 +78,7 @@ def read_images(inputPath, preprocess=None, format='', recursive=False,total=Non
     if preprocess is None:
         for idx, path in enumerate(image_paths[:total]):
             images.append(cv2.imread(path))
-            my_print("R   eading Img: " + str(idx + 1) + "/" + str(total))
+            my_print("Reading Img: " + str(idx + 1) + "/" + str(total))
     else:
         for idx, path in enumerate(image_paths[:total]):
             images.append(preprocess(cv2.imread(path)))
