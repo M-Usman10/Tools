@@ -48,7 +48,7 @@ def read_images(inputPath, preprocess=None, format='', total=None, sorted=False)
         names.append(os.path.basename(path))
     return np.array(images), np.array(names)
 
-def read_images(inputPath, preprocess=None, format='', reqursive=False,total=None, sorted=False):
+def read_images(inputPath, preprocess=None, format='', recursive=False,total=None, sorted=False):
     """
 
     :param inputPath: Path of directory where images are placed
@@ -58,7 +58,7 @@ def read_images(inputPath, preprocess=None, format='', reqursive=False,total=Non
     """
 
     images = []
-    if reqursive == False:
+    if recursive == False:
         image_paths = np.array(glob.glob(os.path.join(inputPath, '*' + format)))
     else:
         image_paths = []
