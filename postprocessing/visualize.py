@@ -143,3 +143,28 @@ def visualize_boxes_txt(img_dir, boxes_dir, allowed_objs=["Table","Desk","Bottle
             visualize(imgs[i].copy(), np.array(boxes[i])[pick], names=np.array(obj_names[i])[pick],
                       dict_=colors))
     return res
+
+def visualize_points(img,points,vis=True,radius=1, thickness=1):
+    """
+
+    Parameters
+    ----------
+    img: Numpy array of RGB image
+    points: Coordinates on which to draw points having shape: (-1,2)
+    vis: bool, displays the resultant image if True
+
+    Returns
+    -------
+    img: Numpy array of RGB image with points drawn on itg
+    """
+    if points.ndim ==2:
+        points = points.astype(int)
+        xs,ys = points[:,0],points[:,1]
+        for x,y in zip(xs,ys):
+            cv2.circle(img, (x,y), radius, (0,0,255), thickness=thickness, lineType=4, shift=0)
+        if vis:
+            plt.imshow(img)
+            plt.show()
+    else:
+        print ("Dimensions not correct")
+    return img
