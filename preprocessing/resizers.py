@@ -39,7 +39,6 @@ def resize_with_aspect_ratio(image, size,points=None):
     -------
         Numpy Array of shape (size,size,3)
     """
-
     if image.shape[0] > image.shape[1]:
         h,w = size, int((size/image.shape[0])*image.shape[1])
         resized_image = resize(image, (h,w,3),preserve_range=True)
@@ -54,6 +53,7 @@ def resize_with_aspect_ratio(image, size,points=None):
         resized_image=np.pad(resized_image,pad_w,mode='constant', constant_values=(0, 0))
     if points is not None:
         assert points.ndim == 1
+        points = np.array(points, dtype = float)
         points = np.array(points).reshape(-1,2)
         x_ratio = w/float(image.shape[1])
         y_ratio = h / float(image.shape[1])
