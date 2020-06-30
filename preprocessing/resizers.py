@@ -26,13 +26,14 @@ def resize(image, output_shape, order=1, mode='constant', cval=0, clip=True,
             preserve_range=preserve_range)
 
 
-def resize_with_aspect_ratio(image, size):
+def resize_with_aspect_ratio(image, size,points=None):
     """
 
     Parameters
     ----------
     image: Numpy Array of shape (N,M,3)
     size: Integer representing
+    points: indexable object i.e. list in the form: (x1,y1,x2,y2...xn,yn)
 
     Returns
     -------
@@ -43,13 +44,25 @@ def resize_with_aspect_ratio(image, size):
         h,w = size, int((size/image.shape[0])*image.shape[1])
         resized_image = resize(image, (h,w,3),preserve_range=True)
         pad_w = (size - w)/2
-        resized_image = np.pad(resized_image, [(0,0),(int(np.floor(pad_w)), int(np.ceil(pad_w))),(0,0)],mode='constant', constant_values=(0, 0))
+        pad_w = [(0, 0), (int(np.floor(pad_w)), int(np.ceil(pad_w))), (0, 0)]
+        resized_image = np.pad(resized_image, pad_w,mode='constant', constant_values=(0, 0))
     else:
         h, w = int((size / image.shape[1]) * image.shape[0]),size
         resized_image = resize(image, (h, w, 3), preserve_range=True)
         pad_w = (size - h)/2
-        resized_image=np.pad(resized_image, [(int(np.floor(pad_w)), int(np.ceil(pad_w))),(0, 0),(0,0)],mode='constant', constant_values=(0, 0))
-    return resized_image
+        pad_w = [(int(np.floor(pad_w)), int(np.ceil(pad_w))), (0, 0), (0, 0)]
+        resized_image=np.pad(resized_image,pad_w,mode='constant', constant_values=(0, 0))
+    if points is not None:
+        assert points.ndim == 1
+        points = np.array(points).reshape(-1,2)
+        x_ratio = w/float(image.shape[1])
+        y_ratio = h / float(image.shape[1])
+        points[:,0] *= x_ratio
+        points[:, 1] *= y_ratio
+        points[:, 0] += pad_w[1][0]
+        points[:, 1] += pad_w[0][0]
+        points = points.flatten()
+    return resized_image, points
 
 
 def resize_image(image, min_dim=None, max_dim=None, min_scale=None, mode="square"):
