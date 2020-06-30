@@ -56,7 +56,7 @@ def resize_with_aspect_ratio(image, size,points=None):
         points = np.array(points, dtype = float)
         points = np.array(points).reshape(-1,2)
         x_ratio = w/float(image.shape[1])
-        y_ratio = h / float(image.shape[1])
+        y_ratio = h / float(image.shape[0])
         points[:,0] *= x_ratio
         points[:, 1] *= y_ratio
         points[:, 0] += pad_w[1][0]
