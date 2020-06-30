@@ -157,6 +157,7 @@ def visualize_points(img,points,vis=True,radius=1, thickness=1):
     -------
     img: Numpy array of RGB image with points drawn on itg
     """
+    img = img.copy()
     if points.ndim ==2:
         points = points.astype(int)
         xs,ys = points[:,0],points[:,1]
